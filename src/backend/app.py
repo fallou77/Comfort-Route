@@ -16,13 +16,17 @@ app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-app.config["SESSION_COOKIE_SAMESITE"] = "lax"
-app.config["SESSION_COOKIE_SECURE"] = False  # keep False for local development
+app.config["SESSION_COOKIE_SAMESITE"] = "None"
+app.config["SESSION_COOKIE_SECURE"] = True
 
 CORS(
     app,
     supports_credentials=True,
-    origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://comfort-route.vercel.app",
+    ],
 )
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "users.db")
@@ -59,7 +63,8 @@ indoorIDs = [
     33243, 23320, 26897, 33276, 33228, 33221, 15913, 33227, 22748, 26420
 ]
 
-DART_LINE_ORDER = ["Green", "Orange", "Red", "Blue", "Silver", "TRE", "Streetcar"]
+DART_LINE_ORDER = ["Green", "Orange", "Red",
+                   "Blue", "Silver", "TRE", "Streetcar"]
 DART_LINE_KEYWORDS = {
     "Green": ["green line"],
     "Orange": ["orange line"],
@@ -318,12 +323,15 @@ def plan_options():
 def get_stations():
     rail_route_ids = routes[routes["route_type"].isin([0, 2])]["route_id"]
     rail_trip_ids = trips[trips["route_id"].isin(rail_route_ids)]["trip_id"]
-    rail_stop_ids = stop_times[stop_times["trip_id"].isin(rail_trip_ids)]["stop_id"].unique()
+    rail_stop_ids = stop_times[stop_times["trip_id"].isin(
+        rail_trip_ids)]["stop_id"].unique()
 
     station_rows = stops.copy()
-    station_rows = station_rows[["stop_id", "stop_name", "stop_lat", "stop_lon"]].dropna()
+    station_rows = station_rows[["stop_id",
+                                 "stop_name", "stop_lat", "stop_lon"]].dropna()
     station_rows = station_rows[station_rows["stop_id"].isin(rail_stop_ids)]
-    station_rows = station_rows.drop_duplicates(subset=["stop_name", "stop_lat", "stop_lon"])
+    station_rows = station_rows.drop_duplicates(
+        subset=["stop_name", "stop_lat", "stop_lon"])
     station_rows["indoors"] = station_rows["stop_id"].astype(str).isin(
         [str(sid) for sid in indoorIDs]
     ).astype(int)
@@ -357,7 +365,8 @@ def rail_shapes():
     rail_routes["line_name"] = rail_routes.apply(get_line_name, axis=1)
     rail_routes = rail_routes.dropna(subset=["line_name"])
     rail_routes["hex_color"] = rail_routes["route_color"].apply(
-        lambda c: f"#{c}" if pd.notna(c) and not str(c).startswith("#") else str(c)
+        lambda c: f"#{c}" if pd.notna(c) and not str(
+            c).startswith("#") else str(c)
     )
 
     shape_to_line = (
@@ -452,4 +461,4 @@ def dart_alerts():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
-    #app.run(host="0.0.0.0", port=5001, debug=False)
+    # app.run(host="0.0.0.0", port=5001, debug=False)
