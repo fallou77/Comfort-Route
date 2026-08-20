@@ -1,7 +1,8 @@
 import { useCallback, useState } from "react";
+import API_BASE from "../api";
 
-const RSS_URL = "http://127.0.0.1:5000/dart-alerts";
-  
+const RSS_URL = `${API_BASE}/dart-alerts`;
+
 
 function parseRSS(xmlString) {
   const parser = new DOMParser();

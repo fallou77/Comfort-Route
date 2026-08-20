@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import "../App.css";
 import { useSettings } from "../context/SettingsContext";
 import DartAlertsButton from "../components/DartAlertsButton";
+import API_BASE from "../api";
 
 function Planner() {
   const [searchParams] = useSearchParams();
@@ -29,7 +30,7 @@ function Planner() {
   useEffect(() => {
     async function fetchStations() {
       try {
-        const res = await fetch("http://127.0.0.1:5000/stations");
+        const res = await fetch(`${API_BASE}/stations`);
         const data = await res.json();
         setStations(data || []);
       } catch (err) {
@@ -116,7 +117,7 @@ function Planner() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/plan-iter3", {
+      const response = await fetch(`${API_BASE}/plan-iter3`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -150,7 +151,7 @@ function Planner() {
             <h1>ComfortRoute</h1>
             <p>Find optimized transit routes with comfort scoring.</p>
           </div>
-		  <DartAlertsButton />
+          <DartAlertsButton />
           <form className="trip-form" onSubmit={handleSubmit}>
 
             {/* ORIGIN */}

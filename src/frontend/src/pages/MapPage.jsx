@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, Circle, Polyline, useMap } from "react-leaflet";
 import DartAlertsButton from "../components/DartAlertsButton";
+import API_BASE from "../api";
 
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -31,11 +32,11 @@ const bookMarkedIcon = new L.Icon({
     shadowSize: [41, 41],
 });
 
-function MapController({ selectedStation }){
+function MapController({ selectedStation }) {
     const map = useMap();
 
     useEffect(() => {
-        if(!selectedStation) return;
+        if (!selectedStation) return;
 
         map.flyTo(
             [selectedStation.lat, selectedStation.lng],
@@ -67,7 +68,7 @@ function MapPage() {
     });
 
     useEffect(() => {
-        fetch("http://127.0.0.1:5000/stations")
+        fetch(`${API_BASE}/stations`)
             .then((r) => r.json())
             .then((data) =>
                 setStations(data.map((s) => ({
@@ -78,7 +79,7 @@ function MapPage() {
             .catch(() => { });
     }, []);
     useEffect(() => {
-        fetch("http://127.0.0.1:5000/rail-shapes")
+        fetch(`${API_BASE}/rail-shapes`)
             .then((res) => res.json())
             .then((data) => setRailLines(data.features))
             .catch(() => setError("Could not load rail lines."));
@@ -92,9 +93,9 @@ function MapPage() {
     }, [bookMarkedStations]);
 
     const LINE_RENDER_ORDER = { Green: 0, Orange: 1, Red: 2, Blue: 3, Silver: 4, TRE: 5, Streetcar: 6 };
-	const sortedLines = [...railLines].sort(
-		(a, b) => LINE_RENDER_ORDER[a.properties.line_name] - LINE_RENDER_ORDER[b.properties.line_name]
-	);
+    const sortedLines = [...railLines].sort(
+        (a, b) => LINE_RENDER_ORDER[a.properties.line_name] - LINE_RENDER_ORDER[b.properties.line_name]
+    );
     function locate() {
         if (!navigator.geolocation) {
             setError("Geolocation is not supported by your browser.");
@@ -132,15 +133,15 @@ function MapPage() {
         return R * c;
     }
 
-    function toggleBookMark(station){
+    function toggleBookMark(station) {
         setBookMarkedStations((prev) => {
             const id = String(station.stop_id);
 
             const exists = prev.includes(id);
 
-            if(exists){
+            if (exists) {
                 return prev.filter(s => s !== id);
-            } else{
+            } else {
                 return [...prev, id];
             }
         });
@@ -192,11 +193,11 @@ function MapPage() {
                             <DartAlertsButton className="map-location-btn" />
                         </div> */}
 
-						<button className="map-location-btn gps-pos" onClick={locate}>
-							📍 My Location
-						</button>
+                        <button className="map-location-btn gps-pos" onClick={locate}>
+                            📍 My Location
+                        </button>
 
-						<DartAlertsButton className="map-location-btn alerts-pos" />
+                        <DartAlertsButton className="map-location-btn alerts-pos" />
 
                         <MapContainer
                             center={mapCenter}
@@ -247,10 +248,10 @@ function MapPage() {
                                         position={[station.lat, station.lng]}
                                         icon={
                                             isBookMarked(station)
-                                            ? bookMarkedIcon
-                                            : settings.highlightIndoorLobby && station.indoors === 1
-                                                ? indoorIcon
-                                                : new L.Icon.Default()
+                                                ? bookMarkedIcon
+                                                : settings.highlightIndoorLobby && station.indoors === 1
+                                                    ? indoorIcon
+                                                    : new L.Icon.Default()
                                         }
                                     >
                                         <Popup>
@@ -288,9 +289,9 @@ function MapPage() {
 
                                             <button onClick={() => toggleBookMark(station)}>
                                                 {isBookMarked(station)
-                                                    ? "★ Bookmarked" 
+                                                    ? "★ Bookmarked"
                                                     : "☆ Bookmark"}
-                                                    
+
                                             </button>
                                         </Popup>
                                     </Marker>
@@ -319,13 +320,13 @@ function MapPage() {
                         </button>
                     </div>
 
-                                        <div className="bookmark-box">
+                    <div className="bookmark-box">
                         <h3>Saved Stations</h3>
 
                         {bookMarkedStations.length === 0 ? (
                             <p>No bookmarks yet</p>
                         ) : (
-                            <ul style={{paddingLeft: "20px"}}>
+                            <ul style={{ paddingLeft: "20px" }}>
                                 {bookMarkedStations.map((id) => {
                                     const station = stations.find(s => String(s.stop_id) === String(id));
 
@@ -346,7 +347,7 @@ function MapPage() {
 
                                             <button
                                                 className="menu-button"
-                                                style={{marginLeft: "10px", cursor: "pointer"}}
+                                                style={{ marginLeft: "10px", cursor: "pointer" }}
                                                 onClick={() => setFocusedStation(station)}
                                             >
                                                 Go
