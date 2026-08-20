@@ -17,7 +17,7 @@ function SignUp() {
 
         try {
             await registerUser(email, password, confirmPassword);
-            window.location.href = "/menu";
+            navigate("/menu");
         } catch (err) {
             setError(err.message);
         }
