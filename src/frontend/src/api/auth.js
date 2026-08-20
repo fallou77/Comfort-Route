@@ -1,4 +1,4 @@
-const API_BASE = `http://${window.location.hostname}:5000`;
+import API_BASE from "../api";
 
 export async function registerUser(email, password, confirmPassword) {
     const res = await fetch(`${API_BASE}/auth/register`, {
